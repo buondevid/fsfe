@@ -1,1 +1,21 @@
-Websocket example
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Websocket Example</title>
+  <script>
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(protocol + '//' + window.location.host + '/ws');
+
+    ws.onmessage = function (event) {
+      console.log(event.data);
+    };
+  </script>
+</head>
+
+<body>
+  <h1>Websocket Example</h1>
+  <p>This is a simple websocket example</p>
+</body>
+
+</html>
