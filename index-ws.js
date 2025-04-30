@@ -1,6 +1,11 @@
 import express from 'express';
 import http from 'http';
-import WebSocket from 'ws';
+import { WebSocketServer } from 'ws';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 const server = http.createServer(app);
@@ -9,32 +14,31 @@ app.get('/', (req, res) => {
 	res.sendFile('index.html', { root: __dirname });
 });
 
-server.on('request', app);
 server.listen(3001, () => {
 	console.log('Server is running on port 3001');
 });
 
 /** Websocket **/
-const WSS = new WebSocket.Server({ server });
+const wss = new WebSocketServer({ server });
 
-WSS.on('connection', function connection(ws) {
-	const numClients = WSS.clients.size;
+wss.on('connection', function connection(ws) {
+	const numClients = wss.clients.size;
 	console.log('Client connected ', numClients);
 
-	WSS.broadcast('Current number of clients: ' + numClients);
+	wss.broadcast('Current number of clients: ' + numClients);
 
 	if (ws.readyState === ws.OPEN) {
-		WSS.broadcast('Welcome to my server ' + numClients);
+		wss.broadcast('Welcome to my server ' + numClients);
 	}
 
 	ws.on('close', function close() {
-		WSS.broadcast('A client disconnected');
+		wss.broadcast('A client disconnected');
 		console.log('A client disconnected');
 	});
 });
 
-WSS.broadcast = function broadcast(data) {
-	WSS.clients.forEach(function each(client) {
+wss.broadcast = function broadcast(data) {
+	wss.clients.forEach(function each(client) {
 		if (client.readyState === client.OPEN) {
 			client.send(data);
 		}
